@@ -16,6 +16,71 @@ headers = {"User-Agent": "Mozilla/5.0"}
 download_page = ''
 page_extension = "ads.php?md5="
 
+def search(query):
+    
+    search_url = urljoin(base_url, "index.php")
+
+    params = {
+        "req": query,
+        "open": 0,
+        "res": 100,
+        "view": "simple",
+        "phrase": 1,
+        "column": "def",
+        "covers": "on"
+    }
+
+
+    response = session.get(
+        search_url, 
+        params=params, 
+        headers=headers
+    )
+
+    response.raise_for_status()
+    #print("Status:", response.status_code)
+    #print("URL:", response.url)
+    return parse_search_results(response.text)
+
+def parse_search_results(html):
+    soup = BeautifulSoup(html, "html.parser")
+
+    rows = soup.select("#tablelibgen tbody tr")
+
+    results = []
+    seen = set()
+
+    for row in rows:
+        link = row.select_one("a[href]")
+
+        if not link:
+            continue
+
+        edition_id = link["href"].split("=")[-1]
+
+        if edition_id in seen:
+            continue
+
+        seen.add(edition_id)
+
+        image = row.select_one("img[src]")
+        image_url = image["src"] if image else None
+
+        title_element = row.select_one("td:nth-of-type(2) a")
+        title = title_element.get_text(strip=True) if title_element else None
+
+        author_element = row.select_one("td:nth-of-type(3)")
+        author = author_element.get_text(strip=True) if author_element else None
+
+        results.append({
+            "edition_id": edition_id,
+            "image_url": image_url,
+            "title": title,
+            "author": author
+        })
+
+    return results
+
 def get_download_link(md5):
 
     download_page = urljoin(base_url, page_extension + md5)
@@ -85,6 +150,36 @@ def get_file(file_id):
 
 ### PROGRAM LOGIC
 
+def get_search_results(query):
+
+    results = search(query)
+
+    enriched_results = []
+
+    for result in results:
+
+        edition_id = result["edition_id"]
+
+        edition = get_edition(edition_id)
+
+        if edition is None:
+            continue
+
+        enriched_result = {
+            "edition_id": edition_id,
+            "image_url": result["image_url"],
+            "title": edition["title"],
+            "author": edition["author"],
+            "publisher": edition["publisher"],
+            "year": edition["year"],
+            "pages": edition["pages"],
+            "files": edition["files"]
+        }
+
+        enriched_results.append(enriched_result)
+
+    return enriched_results
+
 def download_file(f_id):
     file = get_file(f_id)
     
@@ -143,13 +238,51 @@ def download_file(f_id):
     #md5 = file["md5"]
     #print(f"MD5: {md5}")
 
-download_file(4604718)
+#download_file(4604718)
 
 #data = get_files(4604718, 4604719)
 data = get_file(4604718)
 #print(data)
 #print('type:', type(data))
 
+#print(search("The Kite Runner")[:16000])  # Print the first 500 characters of the search results for "The Kite Runner"
+#search("The Kite Runner")
+
+print(search("weapons of math destruction"))
+
+'''
+
+results = get_search_results("Weapons of Math Destruction")
+
+for result in results:
+    print(
+        result["edition_id"],
+        result["title"],
+        result["author"],
+        result["year"]
+    )
+#'''
+
+'''
+soup = BeautifulSoup(search("The Kite Runner"), "html.parser")
+rows = soup.select("#tablelibgen tbody tr")
+
+for row in rows:
+    print('')
+    print (row)
+    print('')
+    edition_id = row.select_one("a[href]")["href"].split("=")[-1]
+    image_url = row.select_one("img[src]")["src"]
+    title = row.select_one("td:nth-of-type(2) a").get_text(strip=True) if row.select_one("td:nth-of-type(2) a") else None
+    author = row.select_one("td:nth-of-type(3)").get_text(strip=True)
+    print("edition_id:", edition_id)
+    print("image_url:", image_url)
+    print("title:", title)
+    print("author:", author)
+    print('')
+    #print(get_file(edition_id))
+    print('')
+#'''
 '''
 for file_id, file in data.items():
     #print(file.keys())
