@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>{{ edition["title"] }}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="/">
+        ← Back to search
+    </a>
+
+    <h1>
+        {{ edition["title"] }}
+    </h1>
+
+    <p>
+        <strong>Author:</strong>
+        {{ edition["author"] }}
+    </p>
+
+    <p>
+        <strong>Publisher:</strong>
+        {{ edition["publisher"] }}
+    </p>
+
+    <p>
+        <strong>Year:</strong>
+        {{ edition["year"] }}
+    </p>
+
+    <p>
+        <strong>Pages:</strong>
+        {{ edition["pages"] }}
+    </p>
+
+    <h2>Files</h2>
+
+    {% for file_id, file in edition["files"].items() %}
+
+        <div class="file">
+
+            <p>
+                File ID: {{ file["f_id"] }}
+            </p>
+
+            <p>
+                MD5: {{ file["md5"] }}
+            </p>
+
+            <a href="/download/{{ file['f_id'] }}">
+                Download
+            </a>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+</body>
+</html>

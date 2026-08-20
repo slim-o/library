@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Library</h1>
+
+    <form action="/search" method="get">
+
+        <input
+            type="text"
+            name="q"
+            placeholder="Search books..."
+            autofocus
+        >
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

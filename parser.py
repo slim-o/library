@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+from api import base_url
 
 def parse_search_results(html):
     soup = BeautifulSoup(html, "html.parser")
@@ -32,7 +34,7 @@ def parse_search_results(html):
 
         results.append({
             "edition_id": edition_id,
-            "image_url": image_url,
+            "image_url": urljoin(base_url, image_url) if image_url else None,
             "title": title,
             "author": author
         })

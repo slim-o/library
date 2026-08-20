@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Search - {{ query }}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Search results</h1>
+
+    <form action="/search" method="get">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+        >
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+    <p>
+        Results for: <strong>{{ query }}</strong>
+    </p>
+
+    <div class="results">
+
+        {% for result in results %}
+
+        <a
+            class="result"
+            href="{{ url_for('edition', edition_id=result['edition_id']) }}"
+        >
+
+            {% if result["image_url"] %}
+
+            <img
+                src="{{ result['image_url'] }}"
+                alt="{{ result['title'] }}"
+            >
+
+            {% endif %}
+
+            <div>
+
+                <h2>
+                    {{ result["title"] }}
+                </h2>
+
+                <p>
+                    {{ result["author"] }}
+                </p>
+
+            </div>
+
+        </a>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
